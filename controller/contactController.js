@@ -4,8 +4,25 @@ import mongoose from "mongoose";
 
 const homeContact = async (req, res) => {
   try {
-    const contacts = await Contact.find();
-    res.render("home", { contacts });
+    // const contacts = await Contact.find();
+    const {page =1 , limit = 3} = req.query ;
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit)
+    };
+    const result = await Contact.paginate({} , options)
+    res.render("home", { 
+     totalDocs: result.totalDocs,
+     limit: result.limit,
+     totalPages: result.totalPages,
+     currentPage: result.page,
+     counter: result.pagingCounter,
+     hasPrevPage: result.hasPrevPage,
+     hasNextPage: result.hasNextPage,
+     prevPage: result.prevPage,
+     nextPage: result.nextPage,
+     contacts: result.docs,
+     });
   } catch (error) {
     res.render("505", { message: error });
   }
@@ -14,7 +31,7 @@ const homeContact = async (req, res) => {
 const showContact = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      res.render("404", { message: "Invalid-Id" });
+     return res.render("404", { message: "Invalid-Id" });
     }
     const contact = await Contact.findById(req.params.id);
     if (!contact) {
@@ -29,12 +46,16 @@ const addContact = async (req, res) => {
   res.render("add-contact");
 };
 const addPostContact = async (req, res) => {
+  try {
   const contact = await Contact.create(req.body);
   res.redirect("/");
+  } catch (error) {
+    res.render('505' , {message: error});
+  }
 };
 const updateContact = async (req, res) => {
   try {
-    if(!mongoose.Types.ObjectId.isValid(req.params.id));
+    if(!mongoose.Types.ObjectId.isValid(req.params.id))
     {
       res.render('404' , {message: "Invalid-id"});      
     }
@@ -68,7 +89,8 @@ const updateContactById = async (req, res) => {
 };
 
 const deleteContact = async (req, res) => {
-  if(!mongoose.Types.ObjectId.isValid(req.params.id))
+ try {
+   if(!mongoose.Types.ObjectId.isValid(req.params.id))
   {
      return res.render('404' , {message: "invalid-id"});
   }
@@ -78,6 +100,9 @@ const deleteContact = async (req, res) => {
      return res.render('404' , {message: 'could not delete '});
   }
   res.redirect('/');
+ } catch (error) {
+  res.render('505' , {message: error})
+ }
 };
 export default {
   homeContact,

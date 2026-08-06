@@ -27,10 +27,10 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <% var srno = counter %>
+                    <% var increaseNum = counter %>
                     <% contacts.forEach(contact => { %>
                       <tr>
-                        <td><%= srno++ %></td>
+                        <td><%= increaseNum++ %></td>
                         <td><%= contact.first_name %></td>
                         <td><%= contact.last_name %></td>
                         <td><%= contact.email %></td>
